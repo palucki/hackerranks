@@ -7,67 +7,56 @@ long substrCount(int n, const std::string& s)
     bool debug = false;
     std::cout << '\n';
     
-    static int iterations = 0;
-    const auto is_special = [&s, &debug](int start, int end)
+    auto result = 0;
+
+    const auto consecutive_count = [](int n)
     {
-        iterations++;
-
-        if(start == end)
-            return true;
-
-        const auto window = end-start;
-        const auto middle_index = window % 2 == 0 ? -1 : start + window/2;
-        if(debug)
-        {
-            std::cout << "substr " << start << " to " << end  << " skipped " << middle_index << '\n';
-        }
-
-        for(int i = start; i < end; ++i)
-        {
-            if(i == middle_index)
-                continue;
-
-            if(s[start] != s[i])
-                return false;
-        }
-
-        // //remove middle character - does not change anything
-        // if(s.size() > 1 && s.size() % 2 != 0)
-        //     s.erase(s.size() / 2, 1);
-
-        //now all needs to be equal to first
-        // return std::all_of(s.begin(), s.end(), [&] (auto const &c) {
-        //     return c == s.front();
-        // });
-
-        if(debug)
-            std::cout << "OK\n";
-        return true;
+        return n * (n + 1) / 2.0;
     };
 
-    iterations = 0;
-    auto result = 0;
-    
-    for(int w = s.size(); w >= 1; --w)
+    for(int i = 0; i < s.size(); ++i)
     {
-        if(debug)
-            std::cout << "window " << w << " from " << 0 << " to " << s.size() - w << '\n';
+        int right_index = i + 1;
+        int consecutive_same_length = 1;
         
-        for(int i = 0; i < s.size() - w + 1; ++i)
+        while(right_index < s.size() && s[i] == s[right_index])
         {
-            // const auto substr = s.substr(i, w);
-            
-            // if(debug)
-            //     std::cout << substr << '\n';
-            
-            if(is_special(i, i+w))
-            {
-                ++result;
-            }
+            consecutive_same_length++;
+            right_index++;
+            i++;
         }
-    }
 
-    std::cout << "iterations " << iterations << '\n';
+        // i = i + right_index;
+        if(i >= s.size())
+        {
+            if(debug)
+            {
+                std::cout << "idx " << i << " adding consecutive count: " << consecutive_count(consecutive_same_length) << "\n";
+                std::cout << "Reached end iterating right\n";
+            }
+            result += consecutive_count(consecutive_same_length);
+            break;
+        }
+
+        auto neighbours_count = 0;
+        int left_offset = i - 1;
+        int right_offset = i + 1;
+        char last = 0;
+        while(left_offset >= 0 && right_offset < s.size() && s[left_offset] == s[right_offset] && (last == 0 || s[left_offset] == last))
+        {
+            last = s[left_offset];
+            neighbours_count++;
+            left_offset--;
+            right_offset++;
+        }
+
+        if(debug)
+        {
+            std::cout << "idx " << i << " adding consecutive count: " << consecutive_count(consecutive_same_length) 
+                                    << " neighbouts count: " << neighbours_count << "\n";
+        }
+        result += consecutive_count(consecutive_same_length) + neighbours_count;
+    }
 
     return result;
 }
@@ -91,6 +80,10 @@ int main()
 
     // input = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; 
     // std::cout << "input: " << input << " result: " << substrCount(input.size(), input)  << " expected: " << 12 << '\n';
+
+    input = "abcbaba";
+    std::cout << "input: " << input << " result: " << substrCount(input.size(), input)  << " expected: " << 10 << '\n';
+
 
     return 0;
 }
