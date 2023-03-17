@@ -2,6 +2,8 @@
 
 using namespace std;
 
+// https://www.hackerrank.com/challenges/sherlock-and-valid-string/problem
+
 /*
  * Complete the 'isValid' function below.
  *

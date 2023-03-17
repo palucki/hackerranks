@@ -2,6 +2,7 @@
 
 
 // Complete the substrCount function below.
+// https://www.hackerrank.com/challenges/special-palindrome-again/problem
 long substrCount(int n, const std::string& s) 
 {
     bool debug = false;
