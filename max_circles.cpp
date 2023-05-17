@@ -5,100 +5,69 @@ using namespace std;
 
 bool debug = true;
 
+int find_set(std::unordered_map<int, int>& parent, int v) 
+{
+   if (v == parent[v])
+      return v;
+
+   return find_set(parent, parent[v]);
+}
+
+void union_sets(std::unordered_map<int, int>& parent, std::unordered_map<int, int>& sizes_per_leader, int& max_circle_size, int a, int b) 
+{
+   int pa = find_set(parent, a);
+   int pb = find_set(parent, b);
+
+   std::cout << "Union for " << a << "," << b << '\n';
+   std::cout << "Parents " << pa << "," << pb << '\n';
+   std::cout << "Sizes " << sizes_per_leader[pa] << ',' << sizes_per_leader[pb] << '\n';
+
+   if (pa != pb)
+   {
+      std::cout << "    merging\n";
+      parent[pb] = pa;
+      sizes_per_leader[pa] = sizes_per_leader[pb] = sizes_per_leader[pa] + sizes_per_leader[pb];
+
+      std::cout << "    new sizes " << sizes_per_leader[pa] << ',' << sizes_per_leader[pb] << '\n';
+
+      if(max_circle_size < sizes_per_leader[pa])
+         max_circle_size = sizes_per_leader[pa];
+   }
+}
+
+void make_set(std::unordered_map<int, int>& parent, std::unordered_map<int, int>& sizes_per_leader, int v) 
+{
+   //ok since 0 is not allowed as input
+   if(find_set(parent, v))
+      return;
+   
+   parent[v] = v;
+   sizes_per_leader[v] = 1;
+}
+
+
 // Complete the maxCircle function below.
 // https://www.hackerrank.com/challenges/friend-circle-queries
 vector<int> maxCircle(vector<vector<int>> queries) 
 {
    std::vector<int> result{};
    result.reserve(queries.size());
-   std::list<std::unordered_set<int>> circles;
    
-   unsigned int max_circle_size = 2;
+   int max_circle_size = 2;
+   std::unordered_map<int, int> parent;
+   std::unordered_map<int, int> sizes_per_leader;
 
    for(const auto& q : queries)
    {
       const auto a = q[0];
       const auto b = q[1];
-      
-      const auto a_circle_it = std::find_if(begin(circles), end(circles), 
-      [elem=a](const std::unordered_set<int>& circle)
-      {
-         return circle.count(elem) == 1;
-      });
-      
-      const auto b_circle_it = std::find_if(begin(circles), end(circles), 
-      [elem=b](const std::unordered_set<int>& circle)
-      {
-         return circle.count(elem) == 1;
-      });
-      
-      if(a_circle_it == end(circles) && b_circle_it == end(circles))
-      {
-         //not found in neither of circles - start a new one :)
-         if(debug)
-            std::cout << "adding new with " << a << " " << b << "\n";
-         circles.push_back({a, b});
-      }
-      else if(a_circle_it != end(circles) && b_circle_it != end(circles))
-      {
-         // circles for both found, if equal -> skip
-         // if not equal -> merge a+b and remove b
-         if(a_circle_it != b_circle_it)
-         {
-            if(debug)
-               std::cout << "merging\n";
-            
-            //pre C++17
-            a_circle_it->insert(b_circle_it->begin(), b_circle_it->end());
 
-            //with C++17
-            // a_circle_it->merge(*b_circle_it);
+      make_set(parent, sizes_per_leader, a);
+      make_set(parent, sizes_per_leader, b);
 
-            //check if that works
-            circles.erase(b_circle_it);
+      union_sets(parent, sizes_per_leader, max_circle_size, a, b);
 
-            if(max_circle_size < a_circle_it->size())
-            {
-               max_circle_size = a_circle_it->size();
-            }
-         }
-      }
-      else if(a_circle_it != end(circles))
-      {
-         if(debug)
-            std::cout << "Adding " << b << " to set A\n";
-         a_circle_it->insert(b);
-
-         if(max_circle_size < a_circle_it->size())
-         {
-            max_circle_size = a_circle_it->size();
-         }
-      }
-      else if(b_circle_it != end(circles))
-      {
-         if(debug)
-            std::cout << "Adding " << a << " to set B\n";
-         b_circle_it->insert(a);
-
-         if(max_circle_size < b_circle_it->size())
-         {
-            max_circle_size = b_circle_it->size();
-         }
-      }
-
-      if(debug)
-         for(const auto& c : circles)
-         {
-            std::cout << "circle: ";
-            for(const auto& e : c)
-            {
-               std::cout << e << ',';
-            }
-            std::cout << '\n';
-         }
-
-      if(debug)
-         std::cout << "max circle size is: " << max_circle_size << '\n';
+      std::cout << "max circle size: " << max_circle_size << '\n';
 
       result.push_back(max_circle_size);
    }
