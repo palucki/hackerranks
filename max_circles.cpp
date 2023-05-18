@@ -12,7 +12,7 @@ int find_set(std::unordered_map<int, int>& parent, int v)
    if (v == parent[v])
       return v;
 
-   return find_set(parent, parent[v]);
+   return parent[v] = find_set(parent, parent[v]);
 }
 
 void union_sets(std::unordered_map<int, int>& parent, std::unordered_map<int, int>& sizes_per_leader, int& max_circle_size, int a, int b) 
