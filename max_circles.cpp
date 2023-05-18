@@ -3,7 +3,9 @@
 
 using namespace std;
 
-bool debug = true;
+bool debug = false;
+
+// Reference: https://cp-algorithms.com/data_structures/disjoint_set_union.html
 
 int find_set(std::unordered_map<int, int>& parent, int v) 
 {
@@ -18,17 +20,23 @@ void union_sets(std::unordered_map<int, int>& parent, std::unordered_map<int, in
    int pa = find_set(parent, a);
    int pb = find_set(parent, b);
 
-   std::cout << "Union for " << a << "," << b << '\n';
-   std::cout << "Parents " << pa << "," << pb << '\n';
-   std::cout << "Sizes " << sizes_per_leader[pa] << ',' << sizes_per_leader[pb] << '\n';
+   if(debug)
+   {
+      std::cout << "Union for " << a << "," << b << '\n';
+      std::cout << "Parents " << pa << "," << pb << '\n';
+      std::cout << "Sizes " << sizes_per_leader[pa] << ',' << sizes_per_leader[pb] << '\n';
+   }
 
    if (pa != pb)
    {
-      std::cout << "    merging\n";
       parent[pb] = pa;
       sizes_per_leader[pa] = sizes_per_leader[pb] = sizes_per_leader[pa] + sizes_per_leader[pb];
 
-      std::cout << "    new sizes " << sizes_per_leader[pa] << ',' << sizes_per_leader[pb] << '\n';
+      if(debug)
+      {
+         std::cout << "    merging\n";
+         std::cout << "    new sizes " << sizes_per_leader[pa] << ',' << sizes_per_leader[pb] << '\n';
+      }
 
       if(max_circle_size < sizes_per_leader[pa])
          max_circle_size = sizes_per_leader[pa];
@@ -44,7 +52,6 @@ void make_set(std::unordered_map<int, int>& parent, std::unordered_map<int, int>
    parent[v] = v;
    sizes_per_leader[v] = 1;
 }
-
 
 // Complete the maxCircle function below.
 // https://www.hackerrank.com/challenges/friend-circle-queries
@@ -67,7 +74,8 @@ vector<int> maxCircle(vector<vector<int>> queries)
 
       union_sets(parent, sizes_per_leader, max_circle_size, a, b);
 
-      std::cout << "max circle size: " << max_circle_size << '\n';
+      if(debug)
+         std::cout << "max circle size: " << max_circle_size << '\n';
 
       result.push_back(max_circle_size);
    }
