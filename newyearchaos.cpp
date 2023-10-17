@@ -44,17 +44,6 @@ void minimumBribes(std::vector<int> input)
     std::cout << overall_number_of_bribes << '\n';
 }
 
-std::string vecToString(const std::vector<int>& v)
-{
-    std::stringstream ss;
-    for(const auto& e : v)
-    {
-        ss << e << " ";
-    }
-
-    return ss.str();
-}
-
 int main()
 {
     for(const std::vector<int>& v: std::initializer_list<std::vector<int>>{
