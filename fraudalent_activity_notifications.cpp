@@ -1,34 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <set>
-
-// void countSwaps(std::vector<int> a) 
-// {
-//     int num_swaps = 0;
-//     for(int i = 0; i < a.size(); ++i)
-//     {
-//         bool swapped = false;
-//         for(int j = 0; j < a.size() - 1; ++j)
-//         {
-//             if(a[j] > a[j+1])
-//             {
-//                 std::swap(a[j], a[j+1]);
-//                 swapped = true;
-//                 num_swaps++;
-//             }
-//         }
-        
-//         if(!swapped)
-//         {
-//             // std::cout << "No swap, breaking\n";
-//             break;
-//         }
-//     }
-    
-//     std::cout << "Array is sorted in " << num_swaps << " swaps.\n";
-//     std::cout << "First Element: " << a[0] << '\n';
-//     std::cout << "Last Element: " << a[a.size()-1] << '\n';
-// }
+#include <algorithm>
 
 int activityNotifications(std::vector<int> expenditure, int d) 
 {
@@ -36,19 +9,18 @@ int activityNotifications(std::vector<int> expenditure, int d)
     
     for(int i = d; i < expenditure.size(); ++i)
     {
-        std::multiset<int> sorted_expenditure(expenditure.begin() + i - d, expenditure.begin() + i);
+        std::vector<int> sorted_expenditure(expenditure.begin() + i - d, expenditure.begin() + i);
+        std::sort(sorted_expenditure.begin(), sorted_expenditure.end());
         const double median = [&sorted_expenditure](){
+            const int half = sorted_expenditure.size() / 2;
+            
             if(sorted_expenditure.size() % 2 == 0)
             {
-                auto it = sorted_expenditure.begin();
-                std::advance(it, sorted_expenditure.size() / 2);
-                return (*it + *std::prev(it)) / 2.0;
+                return (sorted_expenditure[half] + sorted_expenditure[half-1]) / 2.0;
             }
             else
             {
-                auto it = sorted_expenditure.begin();
-                std::advance(it, sorted_expenditure.size() / 2);
-                return double(*it);
+                return static_cast<double>(sorted_expenditure[half]);
             }
         }();
         
