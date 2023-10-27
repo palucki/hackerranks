@@ -36,11 +36,12 @@ SinglyLinkedListNode* insertNodeAtPosition(SinglyLinkedListNode* llist, int data
     return head;
 }
 
-void printList(SinglyLinkedListNode* head)
+template<typename T>
+void printList(T* head)
 {
     while(head)
     {
-        std::cout << head->data << '\n';
+        std::cout << head->data << " at " << head << '\n';
         head = head->next;
     }
 }
@@ -67,6 +68,27 @@ bool has_cycle(Node* head)
 
     return false;
 }
+ 
+struct DoublyLinkedListNode 
+{
+    int data;
+    DoublyLinkedListNode* next;
+    DoublyLinkedListNode* prev;
+};
+
+DoublyLinkedListNode* reverse(DoublyLinkedListNode* llist) 
+{
+    auto* new_head = llist;
+    while(llist)
+    {
+        new_head = llist;
+        std::swap(llist->prev, llist->next);
+        llist = llist->prev;
+    }
+    
+    return new_head;
+}
+
 
 int main()
 {
@@ -84,17 +106,25 @@ int main()
 
     // printList(&head);
 
-    Node head{0, nullptr};
-    Node n1{1, nullptr};
-    Node n2{2, nullptr};
-    Node n3{3, nullptr};
+    DoublyLinkedListNode head{0, nullptr, nullptr};
+    DoublyLinkedListNode n1{1, nullptr, nullptr};
+    DoublyLinkedListNode n2{2, nullptr, nullptr};
+    DoublyLinkedListNode n3{3, nullptr, nullptr};
 
     head.next = &n1;
     n1.next = &n2;
+    n1.prev = &head;
     n2.next = &n3;
-    n3.next = &head;
+    n2.prev = &n1;
+    n3.prev = &n2;
+    // n3.next = &head;
 
-    std::cout << has_cycle(&head) << '\n';
+    auto* it = &head;
+
+    printList(it);
+    it = reverse(it);
+    std::cout << "after\n";
+    printList(it);
 
     return 0;
 }
